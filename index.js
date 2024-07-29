@@ -6,12 +6,10 @@ const state = {
 };
 
 const partyList = document.querySelector("#parties");
-con
-console.log()
 const addPartyForm = document.querySelector("#addParty");
 addPartyForm.addEventListener("submit", addParty);
-const deletePartyForm = document.querySelector("#deleteParty");
-deletePartyForm.addEventListener("submit", deleteParty);
+//const deletePartyForm = document.querySelector("#deleteParty");
+//deletePartyForm.addEventListener("submit", deleteParty);
 
 
 /**
@@ -49,73 +47,62 @@ function renderParties() {
     li.innerHTML = `
         <h2>${party.name}</h2>
         <p>${party.date}</p>
-        <p>${party.time}</p>
         <p>${party.location}</p>
         <p>${party.description}</p>
+        <button id=${party.id} class="delete" type="submit"> Delete party </button>
+
       `;
     return li;
   });
+  partyList.replaceChildren(...partyCards);
+  const deleteBtns = document.querySelectorAll(".delete")
+  deleteBtns.forEach((btn) => {
+    btn.addEventListener("submit", deleteParty)
+  })
+  console.log(deleteBtns);
+
 }
-partyList.replaceChildren(...partyCards);
 
 
 /**
  * Ask the API to create a new artist based on form data
  * @param {Event} event
  */
-function addParty(event) {
+async function addParty(event) {
   event.preventDefault();
 
   // TODO
   try {
-    const response = fetch("API_URL", {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: addPartyForm.name.value,
-        date: addPartyForm.date.value,
-        time: addPartyForm.time.value,
+        date: new Date(addPartyForm.date.value).toISOString(),
         location: addPartyForm.location.value,
         description: addPartyForm.description.value,
       }),
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to create party");
-    }
-    for (let i = 0; i < state.parties.length; i++) {
-      render(event);
-    }
+    render();
 
   } catch (error) {
     console.log(error)
   }
 }
 
-function deleteParty(event) {
+async function deleteParty(event) {
   event.preventDefault();
 
   // TODO
   try {
-    const response = fetch("API_URL", {
+    const response = await fetch(`${API_URL}/${event.target.id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: deletePartyForm.name.value,
-        date: deletePartyForm.date.value,
-        time: deletePartyForm.time.value,
-        location: deletePartyForm.location.value,
-        description: deletePartyForm.description.value,
-      }),
+    
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to delete party");
-    }
+    render();
 
-    for (let i = 0; i <= state.parties.length; i--) {
-      render(event);
-    }
   } catch (error) {
     console.log(error)
   }
